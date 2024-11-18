@@ -88,7 +88,7 @@ class DFPlayerMini ():
             return False
         return True
     
-    def volume_up(self, volume):
+    def volume_up(self):
         return_value = self.send_command(0x04)
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
@@ -96,7 +96,7 @@ class DFPlayerMini ():
             return False
         return True
 
-    def volume_down(self, volume):
+    def volume_down(self):
         return_value = self.send_command(0x05)
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
