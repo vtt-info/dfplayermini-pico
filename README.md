@@ -93,4 +93,4 @@ Plays the current track (eg. resume after a pause)
 
 ## More information
 
-For more information see [Penguin Tutor website](https://www.penguintutor.com)
+For more information see [Penguin Tutor project website Raspberry Pi Pico MP3 Player](https://www.penguintutor.com/projects/pico-mp3player)

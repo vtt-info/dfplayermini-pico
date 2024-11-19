@@ -13,7 +13,7 @@ class DFPlayerMini ():
     sources = {
         'usb': 1,
         'sdcard': 2,
-        'sd': 2, 		# Allow sd as well as sd card
+        'sd': 2,         # Allow sd as well as sd card
         'aux': 3,
         'sleep': 4,
         'flash': 5
