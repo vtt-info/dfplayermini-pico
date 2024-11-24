@@ -1,3 +1,8 @@
+# Demonstration program for the Raspberry Pi Pico MP3 Player
+# based around DFRobot DFPlayerMini
+# More details see:
+# https://www.penguintutor.com/projects/pico-mp3player
+
 from dfplayermini import DFPlayerMini
 import time
 
