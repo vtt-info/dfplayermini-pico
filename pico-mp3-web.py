@@ -87,16 +87,21 @@ async def serve_client(reader, writer):
     # subsequent entries (optional) are any parameters
     command = url.read_request(request)
     if command != None:
-        if command == "play":
+        if command[0] == "play":
+            print (f"Play command {command}")
             # Check for parameter = track number
-            if len(command) > 1 and isinstance(command[1], int):
+            if len(command) > 1 and isinstance(command[1], int) and command[1] > 0 and command[1] < 10000:
                 player1.play(command[1])
             else:
                 player1.play(1)
-        elif command == "pause":
+        elif command[0] == "pause":
             player1.pause()
-        elif command == "stop":
+        elif command[0] == "stop":
             player1.stop()
+        elif command[0] == "volumeup":
+            player1.volume_down()
+        elif command[0] == "volumedown":
+            player1.volume_down()
         # Return status - currently just text (will change to JSON)
         writer.write('HTTP/1.0 200 OK\r\nContent-type: text/text\r\n\r\n')
         writer.write('Status ...')

@@ -16,6 +16,7 @@ class URL_Handler:
         self.docroot = docroot
     
     # read command from request - look for configured commands
+    # Returns tuple (even if single command) or None
     def read_request (self, request):
         # Check it's a "lights" request
         # Split request into parts - eg. GET <filename> HTTPcode
@@ -29,14 +30,26 @@ class URL_Handler:
         # Check for a matching command
         if (url_parts[1][0:5] == "/play"):
             print (f"Play Command received: {url_parts[1]}")
-            return ("play")
+            if url_parts[1][5:12] == "?track=":
+                # Get after equals
+                track_no = int(url_parts[1][12:])
+                if isinstance(track_no, int) and track_no > 0 and track_no < 10000:
+                    print (f"Play track {track_no}")
+                    return ("play", track_no)
+            # If track not provided or is not a valid integer return just play which = track 1
+            return ("play",)
         elif (url_parts[1][0:6] == "/pause"):
             print (f"Pause command received: {url_parts[1]}")
-            return ("pause")
+            return ("pause",)
         elif (url_parts[1][0:5] == "/stop"):
             print (f"Stop command received: {url_parts[1]}")
-            return ("stop")
-        
+            return ("stop",)
+        elif (url_parts[1][0:9] == "/volumeup"):
+            print (f"Volume up command received: {url_parts[1]}")
+            return ("volumeup",)
+        elif (url_parts[1][0:11] == "/volumedown"):
+            print (f"Volume down command received: {url_parts[1]}")
+            return ("volumedown",)
         # Debug - note that this triggers even if it's a static file as we check that later
         #else:
         #    print (f"Unrecognised command {url_parts[1]}")
