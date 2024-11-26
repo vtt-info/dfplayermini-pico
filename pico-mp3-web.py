@@ -24,7 +24,7 @@ DocumentRoot = "public/"
 
 # If ip_config not blank then use for network config
 # otherwise set to "" to use dhcp
-ip_config = ("192.168.0.54", "255.255.255.0", "192.168.0.1", "8.8.8.8")
+ip_config = ("192.168.0.55", "255.255.255.0", "192.168.0.1", "8.8.8.8")
 
 # Tuple with uart number, tx gp number and receive gp no
 uart_details = (1, 4, 5)
@@ -33,11 +33,12 @@ player1 = DFPlayerMini(*uart_details)
 
 
 url = URL_Handler(DocumentRoot)
-
       
 # Connect to wireless network - either AP or client mode      
 def connect():
     #Connect to WLAN
+    # Should allow access via hostname.local, but may depend on WiFi network
+    network.hostname ("mp3player")
     if mode== "ap":
         # Access Point mode
         ip = connect_ap_mode()
@@ -55,6 +56,7 @@ def connect_ap_mode ():
     print('AP Mode is active')
     print('Connect to Wireless Network '+secrets.SSID)
     print('Connect to IP address '+ip)
+    print('Hostname '+network.hostname())
     return ip
 
 def connect_client_mode ():
@@ -67,8 +69,10 @@ def connect_client_mode ():
     while wlan.isconnected() == False:
         print('Waiting for connection...')
         sleep(1)
+    wlan.config(hostname = "mp3player")
     ip = wlan.ifconfig()[0]
-    print('Connect to IP address '+ip)    
+    print('Connect to IP address '+ip)
+    print('Hostname '+network.hostname())
     return ip
 
 

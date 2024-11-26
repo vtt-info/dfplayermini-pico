@@ -1,13 +1,18 @@
 
 
 
-div#centre {
+div#main {
     position:relative;
-    margin-left:auto;
-    margin-right:auto;
+    margin-left:40px;
+    margin-right:20px;
     top: 20px;
     width: 400px;
     background-color: #CCCCCC;
+}
+
+div#volume {
+    float:right;
+    margin:20px;
 }
 
 .imgbutton1, .imgbutton2 {
