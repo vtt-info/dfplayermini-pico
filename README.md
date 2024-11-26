@@ -31,15 +31,17 @@ Create an instance of the DFPlayerMini class, providing the UART number (typical
 Issue a reset against the player (which you may need to attempt multiple times - typically 2 to 3 times).
     player1.reset()
     
-The reset will return True when it has successfully reset the MP3 player.
-    
-You can then call any of the methods. For example set the volume to 12 (out of 30) using
-
-    player1.set_volume(12)
+The reset will return True when it has successfully reset the MP3 player. The next command should be to select the source.
     
 Select the SD card using
     
     player1.select_source('sdcard')
+
+
+You can then call any of the methods. For example set the volume to 12 (out of 30) using
+
+    player1.set_volume(12)
+    
     
 Start playing a track using
 
