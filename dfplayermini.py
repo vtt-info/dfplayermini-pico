@@ -10,6 +10,10 @@ import time
 
 class DFPlayerMini ():
     
+    # how long to pause between read and write / subsequent reads
+    sleep_time = 0.5
+    debug = False
+    
     sources = {
         'usb': 1,
         'sdcard': 2,
@@ -22,13 +26,34 @@ class DFPlayerMini ():
     def __init__ (self, uart_no, tx, rx):
         self.uart = UART(uart_no, baudrate=9600, tx=Pin(tx), rx=Pin(rx))
         self.uart.init(9600, bits=8, parity=None, stop=1)
+        # Set to source when configured
+        self.source = None
+        
+       
+    # Simple check that looks for a standard 0x40 return code
+    def check_return (self, byte_string):
+        if byte_string[3] == 0x40:
+            print ("Error receiving data")
+            return False
+        return True 
+        
         
     # Send a byte string (bytes should alread be fully encoded)
+    # then return the response
     def send_bytes (self, byte_string):
         sent_count = self.uart.write(byte_string)
-        time.sleep(0.5)
+        time.sleep(self.sleep_time)
+        return self.read_reply()
+        
+    # Get a response - part of send_bytes, but also called seperately
+    # where multiple replies are expected
+    def read_reply (self):
         read_value = self.uart.read(10)
+        if self.debug:
+            string_received = "".join([f"\\x{byte:02x}" for byte in read_value])
+            print (f"Received {string_received}")
         return read_value
+    
     
     def calc_checksum(self, data):
         # Data string
@@ -57,20 +82,29 @@ class DFPlayerMini ():
         data += checksum.to_bytes(2)
         # Add start and end bytes
         data_string = b'\x7E' + data + b'\xEF'
-        #print (f"Sending: {data_string}")
+        string_sent = "".join([f"\\x{byte:02x}" for byte in data_string])
+        if self.debug:
+            print (f"Sending: {string_sent}")
+        
         return self.send_bytes (data_string)
     
     def reset(self):
         #'reset' : b'\x7E\xFF\x06\x0C\x01\x00\x00\xFE\xEE\xEF'
         return_value = self.send_command(0x0C)
         #print (f"Return: {return_value}")
+        # First return will be x41 with 0,0,0
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
             return False
+        time.sleep(self.sleep_time)
+        # Next value should be x3f with 0,0,<response>
+        return_value = self.read_reply()
         # Now check for a valid return value - lower data byte = [6]
         # 0 = Timeout
-        if return_value[6] == 0:
+        #string_recv = "".join([f"\\x{byte:02x}" for byte in return_value])
+        if return_value[3] != 0x3f:
+            # Expecting 3f - if not then just return false
             return False
         # 2 = Cardinserted, 4 = CardOnline, 7 = USBInserted, 9 = USBOnline, 10 = CardUSBOnline
         if return_value[6] in (0x02, 0x04, 0x07, 0x09, 0x10):
@@ -79,6 +113,66 @@ class DFPlayerMini ():
         return False
 
 
+    # Get number of files on card / disk / flash
+    # If source is default or None then uses current source
+    def query_num_files(self, source=None):
+        query_code = None
+        # If no source set use current, otherwise return false
+        if source == None:
+            if self.source == None:
+                return False
+            source = self.source
+
+        # Now source is set from parameter or using defult
+        # Different from datasheet which says x47 - TF card, x48 = U-disk
+        if source in ('sdcard', 'sd'):
+            query_code = 0x48
+        elif source == 'usb':
+            query_code = 0x47
+        elif source == 'flash':
+            query_code = 0x49
+            
+        
+        return_value = self.send_command(query_code)
+        #print (f"{return_value}")
+        # Check for no return value or length of value is not correct
+        if return_value == None or len(return_value) != 10:
+            # If so just return without checking for a value
+            return False
+        time.sleep(self.sleep_time)
+        # Now check for a valid return value - lower data byte = [6]
+        return_value = self.read_reply()
+        # Now check for a valid return value - lower data byte = [6]
+        # 0 = Timeout
+        #string_recv = "".join([f"\\x{byte:02x}" for byte in return_value])
+        if return_value[3] != query_code:
+            # Expecting 3f - if not then just return false
+            return False
+
+        # Return value of lower byte + upper byte x (FF+1)
+        return (return_value[5] * 256) + return_value[6]
+
+
+    def get_volume(self):
+        # eg.  b'\x7E\xFF\x06\x06\x01\x00\x0A\xFE\xEA\xEF' (10)
+        return_value = self.send_command(0x43)
+        # First return just confirm command
+        # Check for no return value or length of value is not correct
+        if return_value == None or len(return_value) != 10:
+            # If so just return without checking for a value
+            return False
+        time.sleep(self.sleep_time)
+        # Retrieve actual value
+        return_value = self.read_reply()
+        # Check for no return value or length of value is not correct
+        if return_value == None or len(return_value) != 10:
+            # If so just return without checking for a value
+            return False
+        if return_value[3] != 0x43:
+            # Expecting 3f - if not then just return false
+            return False
+        return return_value[6]
+
     def set_volume(self, volume):
         # eg.  b'\x7E\xFF\x06\x06\x01\x00\x0A\xFE\xEA\xEF' (10)
         return_value = self.send_command(0x06, volume)
@@ -86,7 +180,7 @@ class DFPlayerMini ():
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
             return False
-        return True
+        return self.check_return(return_value)
     
     def volume_up(self):
         return_value = self.send_command(0x04)
@@ -94,7 +188,7 @@ class DFPlayerMini ():
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
             return False
-        return True
+        return self.check_return(return_value)
 
     def volume_down(self):
         return_value = self.send_command(0x05)
@@ -102,7 +196,7 @@ class DFPlayerMini ():
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
             return False
-        return True
+        return self.check_return(return_value)
 
 
     # select source of audio - eg. "usb", "sdcard", "aux", "sleep", "flash"
@@ -113,6 +207,7 @@ class DFPlayerMini ():
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
             return False
+        self.source = source
         return True
 
     def stop(self):
