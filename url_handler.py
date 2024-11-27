@@ -2,6 +2,7 @@
 # For security reasons all files that the user may
 # access must be listed in this file
 import re
+from dfplayermini import DFPlayerMini
 
 class URL_Handler:
     
@@ -15,10 +16,12 @@ class URL_Handler:
     def __init__(self, docroot):
         self.docroot = docroot
     
+    # The read_request is used for dynamic requests
+    # typically requested through jquery they return short codes or sections of text
+    # static files are normally used for the main page
     # read command from request - look for configured commands
     # Returns tuple (even if single command) or None
     def read_request (self, request):
-        # Check it's a "lights" request
         # Split request into parts - eg. GET <filename> HTTPcode
         url_parts = request.split(" ", 2)
         # Check it's a GET request (don't use posts)
@@ -50,9 +53,17 @@ class URL_Handler:
         elif (url_parts[1][0:11] == "/volumedown"):
             print (f"Volume down command received: {url_parts[1]}")
             return ("volumedown",)
+        # /volume can either be ?set= or ?query
+        # Only check for ?set in which case set the volume, otherwise return value
+        elif (url_parts[1][0:7] == "/volume"):
+            if url_parts[1][7:12] == "?set=":
+                # Get after equals
+                vol_no = int(url_parts[1][12:])
+                if isinstance(vol_no, int) and vol_no >= 0 and vol_no <= 30:
+                    print (f"Set volume {vol_no}")
+                    return ("volume", vol_no)
+            return ("volume", )
         # Debug - note that this triggers even if it's a static file as we check that later
-        #else:
-        #    print (f"Unrecognised command {url_parts[1]}")
         
         return None
     

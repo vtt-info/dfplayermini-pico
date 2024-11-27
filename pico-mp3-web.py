@@ -90,25 +90,37 @@ async def serve_client(reader, writer):
     # returns a tuple - first entry is string for command
     # subsequent entries (optional) are any parameters
     command = url.read_request(request)
+    status_message = 'Status ...'
     if command != None:
         if command[0] == "play":
             print (f"Play command {command}")
             # Check for parameter = track number
             if len(command) > 1 and isinstance(command[1], int) and command[1] > 0 and command[1] < 10000:
                 player1.play(command[1])
+                status_message = f'Playing {command[1]}'
             else:
                 player1.play(1)
+                status_message = f'Playing 1'
         elif command[0] == "pause":
             player1.pause()
+            status_message = f'Pause'
         elif command[0] == "stop":
             player1.stop()
+            status_message = f'Stop'
         elif command[0] == "volumeup":
             player1.volume_down()
+            status_message = f'{str(player1.get_volume())}'
         elif command[0] == "volumedown":
             player1.volume_down()
+            status_message = f'{str(player1.get_volume())}'
+        elif command[0] == "volume":
+            if len(command) > 1 and isinstance(command[1], int) and command[1] >= 0 and command[1] <= 30:
+                player1.set_volume(command[1])
+            # Regardless of whether we change volume return current volume
+            status_message = f'{str(player1.get_volume())}'
         # Return status - currently just text (will change to JSON)
         writer.write('HTTP/1.0 200 OK\r\nContent-type: text/text\r\n\r\n')
-        writer.write('Status ...')
+        writer.write(status_message)
         
     
     # Otherwise if not a command is this a static file request
