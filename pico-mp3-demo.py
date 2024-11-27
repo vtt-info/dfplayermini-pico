@@ -9,11 +9,24 @@ while True:
     if player1.reset() == True:
         break
 
+print ("Set SD Card")
+read_value = player1.select_source('sdcard')
+
+print ("Read volume")
+read_value = player1.get_volume()
+print (f"Volume {read_value}")
+
 print ("Set Volume 12")
 read_value = player1.set_volume(12)
 
-print ("Set SD Card")
-read_value = player1.select_source('sdcard')
+print ("Read volume")
+read_value = player1.get_volume()
+print (f"Volume {read_value}")
+
+
+print ("Read Num files")
+read_value = player1.query_num_files()
+print (f"Num files {read_value}")
 
 print ("Play 01")
 read_value = player1.play(1)

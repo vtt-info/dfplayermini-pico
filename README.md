@@ -28,7 +28,7 @@ Create an instance of the DFPlayerMini class, providing the UART number (typical
 
     player1 = DFPlayerMini(1, 4, 5)
     
-Issue a reset against the player (which you may need to attempt multiple times - typically 2 to 3 times).
+Issue a reset against the player.
     player1.reset()
     
 The reset will return True when it has successfully reset the MP3 player. The next command should be to select the source.
@@ -52,7 +52,7 @@ Start playing a track using
 
 ### reset()
 
-Reset the board ready to start communicating. Run this until it returns True.
+Reset the board ready to start communicating. 
 
 ### set_volume(volume_value)
 
@@ -61,6 +61,10 @@ Set the volume. volume_value can be between 0 (off) and 30 (max)
 ### volume_up() / volume_down()
 
 Increase / decrease the volume
+
+### get_volume() 
+
+Get the current volume, returns a value 0 to 30 or False if an error occured
 
 ### select_source(source_name)
 
@@ -91,6 +95,11 @@ Pauses the play (resume using start)
 ### start()
 
 Plays the current track (eg. resume after a pause)
+
+### query_num_files(<source>)
+
+Query the number of files on the source.
+If source is not supplied then current selected source is used.
 
 
 ## More information

@@ -12,6 +12,7 @@ class DFPlayerMini ():
     
     # how long to pause between read and write / subsequent reads
     sleep_time = 0.5
+    debug = False
     
     sources = {
         'usb': 1,
@@ -48,8 +49,9 @@ class DFPlayerMini ():
     # where multiple replies are expected
     def read_reply (self):
         read_value = self.uart.read(10)
-        string_received = "".join([f"\\x{byte:02x}" for byte in read_value])
-        print (f"Received {string_received}")
+        if self.debug:
+            string_received = "".join([f"\\x{byte:02x}" for byte in read_value])
+            print (f"Received {string_received}")
         return read_value
     
     
@@ -81,8 +83,8 @@ class DFPlayerMini ():
         # Add start and end bytes
         data_string = b'\x7E' + data + b'\xEF'
         string_sent = "".join([f"\\x{byte:02x}" for byte in data_string])
-        print (f"Sending: {string_sent}")
-        #print (f"Sending: {data_string}")
+        if self.debug:
+            print (f"Sending: {string_sent}")
         
         return self.send_bytes (data_string)
     
@@ -100,7 +102,7 @@ class DFPlayerMini ():
         return_value = self.read_reply()
         # Now check for a valid return value - lower data byte = [6]
         # 0 = Timeout
-        string_recv = "".join([f"\\x{byte:02x}" for byte in return_value])
+        #string_recv = "".join([f"\\x{byte:02x}" for byte in return_value])
         if return_value[3] != 0x3f:
             # Expecting 3f - if not then just return false
             return False
@@ -122,30 +124,33 @@ class DFPlayerMini ():
             source = self.source
 
         # Now source is set from parameter or using defult
+        # Different from datasheet which says x47 - TF card, x48 = U-disk
         if source in ('sdcard', 'sd'):
-            query_code = 0x47
-        elif source == 'usb':
             query_code = 0x48
+        elif source == 'usb':
+            query_code = 0x47
         elif source == 'flash':
             query_code = 0x49
             
         
         return_value = self.send_command(query_code)
-        print (" *** Query num files *** ")
         #print (f"{return_value}")
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
             return False
+        time.sleep(self.sleep_time)
+        # Now check for a valid return value - lower data byte = [6]
+        return_value = self.read_reply()
         # Now check for a valid return value - lower data byte = [6]
         # 0 = Timeout
-        if return_value[6] == 0:
+        #string_recv = "".join([f"\\x{byte:02x}" for byte in return_value])
+        if return_value[3] != query_code:
+            # Expecting 3f - if not then just return false
             return False
-        # 2 = Cardinserted, 4 = CardOnline, 7 = USBInserted, 9 = USBOnline, 10 = CardUSBOnline
-        if return_value[6] in (0x02, 0x04, 0x07, 0x09, 0x10):
-            return True
-        # Any other value return False
-        return False
+
+        # Return value of lower byte + upper byte x (FF+1)
+        return (return_value[5] * 256) + return_value[6]
 
 
     def get_volume(self):
