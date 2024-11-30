@@ -6,12 +6,30 @@ from dfplayermini import DFPlayerMini
 
 class URL_Handler:
     
+    # All static files needs to be registered here
+    # Also need to include file type http string
+    # For SVG must be svg+xml, otherwise prevented due to security
     static_files = {
         "index.html": "text/html",
         "jquery.min.js": "text/javascript",
         "picomp3play.js": "text/javascript",
-        "picomp3play.css": "text/css"
+        "picomp3play.css": "text/css",
+        "audio-vol-inc.svg": "image/svg+xml",
+        "audio-vol-dec.svg": "image/svg+xml",
+        "audio-play.svg": "image/svg+xml",
+        "audio-stop.svg": "image/svg+xml",
+        "audio-pause.svg": "image/svg+xml"
         }
+    
+    # Dynamically generated svg files
+    # String is filename plus 3 digit number
+    # Filename must follow shortname, then x.svg
+    # This is used for security checking only, if special naming
+    # is required then that is handled in main program
+    dynamic_svg_files = [
+        "audio-vol-",
+        "audio-track-"
+        ]
     
     def __init__(self, docroot):
         self.docroot = docroot
@@ -66,6 +84,12 @@ class URL_Handler:
         # Debug - note that this triggers even if it's a static file as we check that later
         
         return None
+    
+    
+    # Todo implement dynamic svg numbering
+    def validate_dynamic_svg (self, request):
+        return False
+    
     
     # Is this a valid file?
     # If so return (200, filename, filetype)

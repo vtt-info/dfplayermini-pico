@@ -12,27 +12,34 @@
 
 <h1>MP3 Player</h1>
 
-<div id="volume">
+<div id="player">
 
-<a href="/volumeup">Volume Up</a><br />
-<a href="/volumedown">Volume Down</a>
+    <div id="volume">
+    
+    <img id="vol-inc" src="audio-vol-inc.svg" alt="Increase volume"><br />
+        <img id="vol-current" src="audio-vol-current.svg?value=30" alt="Volume 30"><br />
+        <img id="vol-dec" src="audio-vol-dec.svg" alt="Decrease volume">
+    </div>
+    
+    
+    <div id="main">
+    
+        <img id="audio-play" src="audio-play.svg" alt="Play">
+        <img id="audio-pause" src="audio-pause.svg" alt="Pause">
+        <img id="audio-stop" src="audio-stop.svg" alt="Stop">
+    
+        <ul>
+        <li><a href="/play">Play</a><a href="/play?track=1">1</a><a href="/play?track=2">2</a><a href="/play?track=3">3</a><a href="/play?track=4">4</a><a href="/play?track=5">5</a></li>
+        <li><a href="/pause">Pause</a></li>
+        <li><a href="/stop">Stop</a></li>
+        </ul>
+        
+        
+        <p>Cmd status : <span id="status">...</span></p>
+    
+    </div>
+
 </div>
-
-
-<div id="centre">
-
-<ul>
-<li><a href="/play">Play</a><a href="/play?track=1">1</a><a href="/play?track=2">2</a><a href="/play?track=3">3</a><a href="/play?track=4">4</a><a href="/play?track=5">5</a></li>
-<li><a href="/pause">Pause</a></li>
-<li><a href="/stop">Stop</a></li>
-</ul>
-
-
-<p>Cmd status : <span id="status">...</span></p>
-
-</div>
-
-
 
 </body>
 </html>

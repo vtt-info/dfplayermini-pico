@@ -1,12 +1,22 @@
 
 
 
+div#player {
+    position: relative;
+    margin-left:10px;
+    margin-right: 10px;
+    top: 10px;
+    width: 600px;
+    background-color: #afd3e6;
+}
+
+
 div#main {
     position:relative;
-    margin-left:40px;
-    margin-right:20px;
-    top: 20px;
-    width: 400px;
+    margin-left:10px;
+    margin-right:10px;
+    top: 10px;
+    width: 450px;
     background-color: #CCCCCC;
 }
 

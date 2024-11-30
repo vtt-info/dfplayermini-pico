@@ -108,7 +108,7 @@ async def serve_client(reader, writer):
             player1.stop()
             status_message = f'Stop'
         elif command[0] == "volumeup":
-            player1.volume_down()
+            player1.volume_up()
             status_message = f'{str(player1.get_volume())}'
         elif command[0] == "volumedown":
             player1.volume_down()
@@ -122,6 +122,10 @@ async def serve_client(reader, writer):
         writer.write('HTTP/1.0 200 OK\r\nContent-type: text/text\r\n\r\n')
         writer.write(status_message)
         
+    # Or it's a dyanmically updated svg file
+    # Todo
+    elif False:
+        pass
     
     # Otherwise if not a command is this a static file request
     else:
