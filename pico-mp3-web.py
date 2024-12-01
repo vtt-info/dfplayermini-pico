@@ -31,6 +31,13 @@ uart_details = (1, 4, 5)
 
 player1 = DFPlayerMini(*uart_details)
 
+# Special dynamic files - these are edited in real time by replacing {arg} with the value provided
+# All these must have a corresponding value in url_handler
+# Can either be "" (leaves as a number) or list to replace
+dynamic_svg_files = {
+    'audio-vol.svg' : "",
+    'audio-track.svg' : ["0", "1 - voice", "2 - voice", "3 - music"]
+    }
 
 url = URL_Handler(DocumentRoot)
       
@@ -125,12 +132,28 @@ async def serve_client(reader, writer):
             writer.write('HTTP/1.0 200 OK\r\nContent-type: text/text\r\n\r\n')
             writer.write(status_message)
         
-    # Not implemented remove False to implement
-    elif False and url_request_info[0] == "dynamic":
-        url_file = url_request_info[1]
-        url_prefix = url_request_info[2]
-        # Todo currently just ignore and gives index.html
-        pass
+    # Handle special dynamic files related to volume or track name
+    elif url_request_info[0] == "dynamic":
+        url_filename = url_request_info[1]
+        url_arg = url_request_info[2]
+        print (f"Dynamic file {url_filename} - {url_arg}")
+        # First validate value and/or convert to a string
+        if dynamic_svg_files[url_filename] == "" or len(dynamic_svg_files[url_filename]) <  (url_arg+1):
+            arg_string = str(url_arg)
+        else:
+            arg_string = dynamic_svg_files[url_filename][url_arg]
+        # Load file and read - replacing {arg} as neccessary
+        writer.write('HTTP/1.0 200 OK\r\nContent-type: image/svg+xml\r\n\r\n')
+        # Use readline to prevent {arg} being split over lines
+        with open(DocumentRoot+url_filename, "r") as read_file:
+            data = read_file.readline(1024)
+            while data:
+                new_string = data.replace("{arg}", arg_string)
+                writer.write(new_string)
+                await writer.drain()
+                data = read_file.readline(1024)
+            read_file.close()
+            
     else:
         # Else it could be "static" or "error" - handle same
         url_value = url_request_info[1]

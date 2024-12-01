@@ -54,5 +54,8 @@ function statusResponse (data) {
 }
 
 function volumeResponse (data) {
-    $('#status').html("Volume: "+data);
+    // If response is False then ignore
+    if (data == "False") return;
+    $('#vol-current').attr("alt", "Volume: "+data);
+    $('#vol-current').attr("src", "audio-vol.svg?vol="+data);
 }

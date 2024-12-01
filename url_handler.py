@@ -38,14 +38,14 @@ class URL_Handler:
         }
     
     # Dynamically generated svg files
-    # String is filename plus 3 digit number
+    # Value must be a number - although calling prog can change to string if desired
     # Filename must follow shortname, then x.svg
     # This is used for security checking only, if special naming
     # is required then that is handled in main program
-    dynamic_svg_files = [
-        "audio-vol-",
-        "audio-track-"
-        ]
+    dynamic_svg_files = {
+        "audio-vol.svg": "?vol=",
+        "audio-track.svg": "track="
+        }
     
     def __init__(self, docroot):
         self.docroot = docroot
@@ -111,12 +111,32 @@ class URL_Handler:
         return (False, req_filename)
         
     # Some files can be dynamically generated, just check prefix and do more security checks later (eg. checking valid extension)
-    def validate_dynamic_file (self, req_filename):
-        for this_prefix in self.dynamic_svg_files:
-            if req_filename.startswith(this_prefix):
-                return (True, req_filename, this_prefix)
+    def validate_dynamic_file (self, req_string):
+        print (f"Dynamic {req_string}")
+        for this_filename in self.dynamic_svg_files.keys():
+            print (f"Filename is {this_filename}")
+            if req_string == this_filename or req_string.startswith(this_filename+'?'):
+                # If here then look to see if there are parameters
+                # Strip off the filename
+                remaining_string = req_string[len(this_filename):]
+                print (f"Remaining string {remaining_string}")
+                # Now check if we have that string if not then return just the filename
+                if not remaining_string.startswith(self.dynamic_svg_files[this_filename]):
+                    return (True, this_filename, "")
+                # Now strip that and check we have a number left
+                number_string = remaining_string[len(self.dynamic_svg_files[this_filename]):]
+                print (f"no string {number_string}")
+                # should just have a number now
+                try:
+                    number = int (number_string)
+                except ValueError:
+                    return (True, this_filename, "")
+                else:
+                    print (f"No {int(number_string)}")
+                    return (True, this_filename, int(number_string))
+                
         # Reach here it's not been found
-        return (False, req_filename)
+        return (False, req_string)
     
     # Check for a command
     # Typically these are requested via jquery and then retun short code or string
