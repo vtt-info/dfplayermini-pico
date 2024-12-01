@@ -24,6 +24,10 @@ div#volume {
     margin:20px;
 }
 
+ul#tracks {
+    list-style: none;
+}
+
 .imgbutton1, .imgbutton2 {
     cursor: pointer;
 }

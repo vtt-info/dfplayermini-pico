@@ -30,6 +30,7 @@ ip_config = ("192.168.0.55", "255.255.255.0", "192.168.0.1", "8.8.8.8")
 uart_details = (1, 4, 5)
 
 player1 = DFPlayerMini(*uart_details)
+player1.select_source('sdcard')
 
 # Special dynamic files - these are edited in real time by replacing {arg} with the value provided
 # All these must have a corresponding value in url_handler
@@ -103,14 +104,19 @@ async def serve_client(reader, writer):
         status_message = 'Status ...'
         if command != None:
             if command == "play":
-                print (f"Play command {command}")
+                #print (f"Play command {command}")
                 # Check for parameter = track number
                 if arg != "" and isinstance(arg, int) and arg > 0 and arg < 10000:
                     player1.play(arg)
                     status_message = f'Playing {arg}'
                 else:
-                    player1.play(1)
-                    status_message = f'Playing 1'
+                    # special case if no arg supplied and paused then call start instead
+                    if player1.paused:
+                        player1.start()
+                        status_message = f'Resume playing'
+                    else:
+                        player1.play(1)
+                        status_message = f'Playing 1'
             elif command == "pause":
                 player1.pause()
                 status_message = f'Pause'
@@ -128,6 +134,10 @@ async def serve_client(reader, writer):
                     player1.set_volume(arg)
                 # Regardless of whether we change volume return current volume
                 status_message = f'{str(player1.get_volume())}'
+            elif command == "numfiles":
+                num_files = player1.query_num_files()
+                #print (f"Returning numfiles {num_files}")
+                status_message = f'{str(num_files)}'
             # Return status - currently just text 
             writer.write('HTTP/1.0 200 OK\r\nContent-type: text/text\r\n\r\n')
             writer.write(status_message)
@@ -171,7 +181,7 @@ async def serve_client(reader, writer):
             read_file.close()
 
     await writer.wait_closed()
-    print("Client disconnected")
+    #print("Client disconnected")
 
 
 # Initialise Wifi

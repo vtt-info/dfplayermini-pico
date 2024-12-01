@@ -28,6 +28,9 @@ class DFPlayerMini ():
         self.uart.init(9600, bits=8, parity=None, stop=1)
         # Set to source when configured
         self.source = None
+        # Keep track of if paused
+        # Eg. allows resuming paused track when play is pressed
+        self.paused = False
         
        
     # Simple check that looks for a standard 0x40 return code
@@ -89,6 +92,7 @@ class DFPlayerMini ():
         return self.send_bytes (data_string)
     
     def reset(self):
+        self.paused = False
         #'reset' : b'\x7E\xFF\x06\x0C\x01\x00\x00\xFE\xEE\xEF'
         return_value = self.send_command(0x0C)
         #print (f"Return: {return_value}")
@@ -134,7 +138,7 @@ class DFPlayerMini ():
             
         
         return_value = self.send_command(query_code)
-        #print (f"{return_value}")
+        #print (f"query_num_files {return_value}")
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
@@ -150,7 +154,9 @@ class DFPlayerMini ():
             return False
 
         # Return value of lower byte + upper byte x (FF+1)
-        return (return_value[5] * 256) + return_value[6]
+        eval_value = (return_value[5] * 256) + return_value[6]
+        #print (f"Eval {eval_value}")
+        return eval_value
 
 
     def get_volume(self):
@@ -201,6 +207,7 @@ class DFPlayerMini ():
 
     # select source of audio - eg. "usb", "sdcard", "aux", "sleep", "flash"
     def select_source(self, source):
+        self.paused = False
         #'sdcard' : b'\x7E\xFF\x06\x09\x01\x00\x02\xFE\xEF\xEF'
         return_value = self.send_command(0x09, self.sources[source])
         # Check for no return value or length of value is not correct
@@ -211,6 +218,7 @@ class DFPlayerMini ():
         return True
 
     def stop(self):
+        self.paused = False
         return_value = self.send_command(0x16)
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
@@ -219,6 +227,7 @@ class DFPlayerMini ():
         return True
     
     def play (self, track_num):
+        self.paused = False
         #'play1' : b'\x7E\xFF\x06\x03\x01\x00\x01\xFE\xF6\xEF',
         return_value = self.send_command(0x03, track_num)
         # Check for no return value or length of value is not correct
@@ -228,6 +237,7 @@ class DFPlayerMini ():
         return True
     
     def play_next (self):
+        self.paused = False
         return_value = self.send_command(0x01)
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
@@ -236,6 +246,7 @@ class DFPlayerMini ():
         return True
     
     def play_previous (self):
+        self.paused = False
         return_value = self.send_command(0x02)
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
@@ -244,6 +255,7 @@ class DFPlayerMini ():
         return True
 
     def play_loop (self, track_num):
+        self.paused = False
         return_value = self.send_command(0x08, track_num)
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
@@ -252,6 +264,7 @@ class DFPlayerMini ():
         return True
 
     def pause (self):
+        self.paused = True
         return_value = self.send_command(0x0E)
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
@@ -259,7 +272,9 @@ class DFPlayerMini ():
             return False
         return True
     
+    # Play / resume if paused
     def start (self):
+        self.paused = False
         return_value = self.send_command(0x0D)
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
