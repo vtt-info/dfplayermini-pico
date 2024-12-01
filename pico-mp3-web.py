@@ -86,52 +86,57 @@ async def serve_client(reader, writer):
     
     request = request_line.decode("utf-8")
     
-    # Dynamic command - returns None if not a recognised command
-    # returns a tuple - first entry is string for command
-    # subsequent entries (optional) are any parameters
-    command = url.read_request(request)
-    status_message = 'Status ...'
-    if command != None:
-        if command[0] == "play":
-            print (f"Play command {command}")
-            # Check for parameter = track number
-            if len(command) > 1 and isinstance(command[1], int) and command[1] > 0 and command[1] < 10000:
-                player1.play(command[1])
-                status_message = f'Playing {command[1]}'
-            else:
-                player1.play(1)
-                status_message = f'Playing 1'
-        elif command[0] == "pause":
-            player1.pause()
-            status_message = f'Pause'
-        elif command[0] == "stop":
-            player1.stop()
-            status_message = f'Stop'
-        elif command[0] == "volumeup":
-            player1.volume_up()
-            status_message = f'{str(player1.get_volume())}'
-        elif command[0] == "volumedown":
-            player1.volume_down()
-            status_message = f'{str(player1.get_volume())}'
-        elif command[0] == "volume":
-            if len(command) > 1 and isinstance(command[1], int) and command[1] >= 0 and command[1] <= 30:
-                player1.set_volume(command[1])
-            # Regardless of whether we change volume return current volume
-            status_message = f'{str(player1.get_volume())}'
-        # Return status - currently just text (will change to JSON)
-        writer.write('HTTP/1.0 200 OK\r\nContent-type: text/text\r\n\r\n')
-        writer.write(status_message)
-        
-    # Or it's a dyanmically updated svg file
-    # Todo
-    elif False:
-        pass
+    # Determine if it's command, dynamic image or static
+    url_request_info  = url.request_type(request)
     
-    # Otherwise if not a command is this a static file request
-    else:
+    if url_request_info[0] == "command":
+        command = url_request_info[1]
+        arg = url_request_info[2]
         
-        url_value, url_file, url_type = url.validate_file(request)
-
+        status_message = 'Status ...'
+        if command != None:
+            if command == "play":
+                print (f"Play command {command}")
+                # Check for parameter = track number
+                if arg != "" and isinstance(arg, int) and arg > 0 and arg < 10000:
+                    player1.play(arg)
+                    status_message = f'Playing {arg}'
+                else:
+                    player1.play(1)
+                    status_message = f'Playing 1'
+            elif command == "pause":
+                player1.pause()
+                status_message = f'Pause'
+            elif command == "stop":
+                player1.stop()
+                status_message = f'Stop'
+            elif command == "volumeup":
+                player1.volume_up()
+                status_message = f'{str(player1.get_volume())}'
+            elif command == "volumedown":
+                player1.volume_down()
+                status_message = f'{str(player1.get_volume())}'
+            elif command == "volume":
+                if arg != "" and isinstance(arg, int) and arg >= 0 and arg <= 30:
+                    player1.set_volume(arg)
+                # Regardless of whether we change volume return current volume
+                status_message = f'{str(player1.get_volume())}'
+            # Return status - currently just text 
+            writer.write('HTTP/1.0 200 OK\r\nContent-type: text/text\r\n\r\n')
+            writer.write(status_message)
+        
+    # Not implemented remove False to implement
+    elif False and url_request_info[0] == "dynamic":
+        url_file = url_request_info[1]
+        url_prefix = url_request_info[2]
+        # Todo currently just ignore and gives index.html
+        pass
+    else:
+        # Else it could be "static" or "error" - handle same
+        url_value = url_request_info[1]
+        url_file = url_request_info[2]
+        url_type = url_request_info[3]
+        # Otherwise must be static
         writer.write('HTTP/1.0 {} OK\r\nContent-type: {}\r\n\r\n'.format(url_value, url_type))
         # Send file 1kB at a time (avoid problem with large files exceeding available memory)
         with open(DocumentRoot+url_file, "rb") as read_file:
