@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MP3 Player</title>
+<link href="picomp3play.css" rel="stylesheet" type="text/css">
+<!-- Add Jquery -->
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="picomp3play.js"></script>
+</head>
+<body>
+
+<h1>MP3 Player</h1>
+
+<div id="player">
+
+    <div id="volume">
+    
+    <img id="vol-inc" src="audio-vol-inc.svg" alt="Increase volume"><br />
+        <img id="vol-current" src="audio-vol.svg" alt="Volume 30"><br />
+        <img id="vol-dec" src="audio-vol-dec.svg" alt="Decrease volume">
+    </div>
+    
+    
+    <div id="main">
+    
+        <img id="audio-play" src="audio-play.svg" alt="Play">
+        <img id="audio-pause" src="audio-pause.svg" alt="Pause">
+        <img id="audio-stop" src="audio-stop.svg" alt="Stop">
+    
+        <ul id="tracks">
+        </ul>
+        
+        
+        <p>Cmd status : <span id="status">...</span></p>
+        
+        <p>&nbsp;</p>
+    
+    </div>
+
+</div>
+
+</body>
+</html>

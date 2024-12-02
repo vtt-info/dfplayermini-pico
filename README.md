@@ -3,13 +3,13 @@ Micropython implementation of DFPlayerMini serial MP3 player from a Raspberry Pi
 
 ## About
 
-This library is used to control the DFPlayer MP3 player using a serial connection from a Raspberry Pi Pico
+This contains a library used to control the DFPlayer MP3 player using a serial connection from a Raspberry Pi Pico. It also includes example source code for a web based MP3 player using a Pico W.
 
 It is only a partial implementation, implementing common features. 
 
 It is based on the protocol defined at (https://www.dfrobot.com/).
 
-## Use
+# Library usage
 
 Upload the file dfplayermini.py to the root of a Raspberry Pi Pico with MicroPython. Run the example program pico-mp3-demo.py from thonny. It can be run automatically by renaming the file to main.py.
 
@@ -96,10 +96,46 @@ Pauses the play (resume using start)
 
 Plays the current track (eg. resume after a pause)
 
+
 ### query_num_files(<source>)
 
 Query the number of files on the source.
 If source is not supplied then current selected source is used.
+
+
+
+## WiFi version
+
+The repository also includes an example web server designed for the Raspberry Pi Pico. 
+
+# Installation
+
+This version needs to be installed on a Raspberry Pi Pico W with the appropriate network enabled MicroPython. MicroPython can be installed through the Thonny editor.
+
+To install the program, copy all the files in the source to the top-level of the Raspberry Pi Pico, also upload the entire public directory. For the network connection you also need to create a file called secrets.py with details of your SSID and PASSWORD. The example below shows the formatting for the secrets.py file.
+
+    SSID="NetworkSSID"
+    PASSWORD="WiFiPassword"
+    
+## Configuration
+
+The program can be run in two modes. 
+
+* Access Point Mode (AP mode) - In this mode the Pico will act as a Wireless Access Point which you can connect to using another WiFi enabled device.
+* Client Mode - In this mode you can connect to an existing wireless network
+
+Note that in client mode it is currently blocking and will not operate until it has successfully connected to the network.
+
+The mode is set by editing the entry "mode" in the pico-lights.py file. 
+
+mode="ap"       # Use as an access point
+mode="client"   # Use as a Wi-Fi client
+
+    
+## Running on startup
+
+For the code to run automatically on start-up save the pico-mp3-demo.py file on your Pico as main.py.
+
 
 
 ## More information

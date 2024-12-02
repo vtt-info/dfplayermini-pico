@@ -1,0 +1,41 @@
+
+
+
+div#player {
+    position: relative;
+    margin-left:10px;
+    margin-right: 10px;
+    top: 10px;
+    width: 600px;
+    background-color: #afd3e6;
+}
+
+
+div#main {
+    position:relative;
+    margin-left:10px;
+    margin-right:10px;
+    top: 10px;
+    width: 450px;
+}
+
+div#volume {
+    float:right;
+    margin:20px;
+}
+
+ul#tracks {
+    list-style: none;
+}
+
+.imgbutton1, .imgbutton2 {
+    cursor: pointer;
+}
+
+.imgbutton1 {
+	margin-left: 20px;
+}
+
+.buttonname {
+    font-size: 160%;
+}
