@@ -37,7 +37,12 @@ player1.select_source('sdcard')
 # Can either be "" (leaves as a number) or list to replace
 dynamic_svg_files = {
     'audio-vol.svg' : "",
-    'audio-track.svg' : ["0", "1 - voice", "2 - voice", "3 - music"]
+    'audio-track.svg' : [
+        "0", "1 - voice",
+        "2 - Longer voice demo",
+        "3 - music",
+        "4 - A really long file name"
+        ]
     }
 
 url = URL_Handler(DocumentRoot)
@@ -150,8 +155,13 @@ async def serve_client(reader, writer):
         # First validate value and/or convert to a string
         if dynamic_svg_files[url_filename] == "" or len(dynamic_svg_files[url_filename]) <  (url_arg+1):
             arg_string = str(url_arg)
+            # Special case if less than 1 character then add a space to the beginning
+            # Particularly for volume, but applies to all
+            if (len(arg_string) < 2):
+                arg_string = " "+arg_string
         else:
             arg_string = dynamic_svg_files[url_filename][url_arg]
+            
         # Load file and read - replacing {arg} as neccessary
         writer.write('HTTP/1.0 200 OK\r\nContent-type: image/svg+xml\r\n\r\n')
         # Use readline to prevent {arg} being split over lines

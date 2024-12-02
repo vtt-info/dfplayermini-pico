@@ -11,7 +11,7 @@ import time
 class DFPlayerMini ():
     
     # how long to pause between read and write / subsequent reads
-    sleep_time = 0.5
+    sleep_time = 0.1
     debug = False
     
     sources = {
