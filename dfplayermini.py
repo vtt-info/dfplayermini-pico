@@ -281,3 +281,34 @@ class DFPlayerMini ():
             # If so just return without checking for a value
             return False
         return True
+    
+    # Returns False if out of sync / error, 0 if stopped, 1 if playing, 2 if paused
+    def get_status(self):
+        #print ("\nChecking status")
+        return_value = self.send_command(0x42)
+        # First return just confirm command
+        # Check for no return value or length of value is not correct        
+        if return_value == None or len(return_value) != 10:
+            #print ("No response - retry")
+            # First retry:
+            return_value = self.read_reply()
+            if return_value == None or len(return_value) != 10:
+                # If still not a valid reply return without checking for a value
+                return False
+        #print (f"Pre-return value {return_value[3]} - {return_value[5]}:{return_value[6]}")
+        time.sleep(self.sleep_time)
+        # Retrieve actual value
+        return_value = self.read_reply()
+        # Check for no return value or length of value is not correct
+        if return_value == None or len(return_value) != 10:
+            # If so just return without checking for a value
+            return False
+        # If get a generic reply - then likely missed previously, so check again for the value reply
+        if return_value[3] == 0x41:
+            time.sleep(self.sleep_time)
+            return_value = self.read_reply()
+        #print (f"Return value {return_value[3]} - {return_value[5]}:{return_value[6]}")
+        if return_value[3] != 0x42:
+            # Expecting 42 - if not then just return false
+            return False
+        return return_value[6]
