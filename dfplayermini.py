@@ -11,7 +11,7 @@ import time
 class DFPlayerMini ():
     
     # how long to pause between read and write / subsequent reads
-    sleep_time = 0.1
+    sleep_time = 0.2
     debug = False
     
     sources = {
@@ -53,6 +53,9 @@ class DFPlayerMini ():
     def read_reply (self):
         read_value = self.uart.read(10)
         if self.debug:
+            if read_value == None:
+                print ("None received")
+                return None
             string_received = "".join([f"\\x{byte:02x}" for byte in read_value])
             print (f"Received {string_received}")
         return read_value
@@ -95,15 +98,21 @@ class DFPlayerMini ():
         self.paused = False
         #'reset' : b'\x7E\xFF\x06\x0C\x01\x00\x00\xFE\xEE\xEF'
         return_value = self.send_command(0x0C)
-        #print (f"Return: {return_value}")
+        #print (f"Return 1: {return_value}")
         # First return will be x41 with 0,0,0
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
             return False
+        # Reset wait 2 x sleep as sometimes needs to stabilise first
+        time.sleep(self.sleep_time)
         time.sleep(self.sleep_time)
         # Next value should be x3f with 0,0,<response>
         return_value = self.read_reply()
+        if return_value == None or len(return_value) != 10:
+            # If so just return without checking for a value
+            return False
+        #print (f"Return 2: {return_value}")
         # Now check for a valid return value - lower data byte = [6]
         # 0 = Timeout
         #string_recv = "".join([f"\\x{byte:02x}" for byte in return_value])
@@ -138,7 +147,7 @@ class DFPlayerMini ():
             
         
         return_value = self.send_command(query_code)
-        #print (f"query_num_files {return_value}")
+        print (f"query_num_files {return_value}")
         # Check for no return value or length of value is not correct
         if return_value == None or len(return_value) != 10:
             # If so just return without checking for a value
@@ -155,7 +164,7 @@ class DFPlayerMini ():
 
         # Return value of lower byte + upper byte x (FF+1)
         eval_value = (return_value[5] * 256) + return_value[6]
-        #print (f"Eval {eval_value}")
+        print (f"Eval {eval_value}")
         return eval_value
 
 

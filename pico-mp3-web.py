@@ -30,6 +30,10 @@ ip_config = ("192.168.0.55", "255.255.255.0", "192.168.0.1", "8.8.8.8")
 uart_details = (1, 4, 5)
 
 player1 = DFPlayerMini(*uart_details)
+while True:
+    print ("Reset")
+    if player1.reset() == True:
+        break
 player1.select_source('sdcard')
 
 # Special dynamic files - these are edited in real time by replacing {arg} with the value provided
