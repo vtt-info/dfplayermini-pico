@@ -18,6 +18,8 @@ Upload the file dfplayermini.py to the root of a Raspberry Pi Pico with MicroPyt
 The SD card should be formatted using FAT32 / VFAT. Create a directory called mp3 and name the music files using 4 digits for the track number. 
 Eg. 0001.mp3
 
+The order that the mp3 files are placed on the SD card will affect the order that the music is played.
+
 ## Using in your own code
 
 Upload the file dfplayermini.py to the Raspberry Pi Pico (you can use the upload functionality within the Thonny editor). Then import that to your own python file.
@@ -141,3 +143,5 @@ For the code to run automatically on start-up save the pico-mp3-demo.py file on 
 ## More information
 
 For more information see [Penguin Tutor project website Raspberry Pi Pico MP3 Player](https://www.penguintutor.com/projects/pico-mp3player)
+
+For technical details of the DFPlayer Mini see the [DFPlayer Wiki](https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299)
